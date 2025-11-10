@@ -12,8 +12,8 @@ running = True
 player_x = 225
 player_img = pygame.image.load("defender.png") #load in the image
 player_img = pygame.transform.scale(player_img, (35, 30)) # change the scale
-
-
+bullet_img = pygame.image.load("bullet.png")
+bullet_img = pygame.transform.scale(bullet_img, (10, 20))
 #invaiders
 
 invader_startrow = 100
@@ -26,7 +26,7 @@ move_right = True
 invader_img = pygame.image.load("invader1.png")
 invader_img = pygame.transform.scale(invader_img, (30, 30))
 
-def draw_invaders():
+def draw_invader():
     for row in range(invader_startrow, invader_endrow, 30): # intervals of 30 
         for col in range(invader_startcol, invader_endcol, 30):
             screen.blit(invader_img, (col, row))
@@ -57,6 +57,13 @@ def move_invaders():
         else:
             move_right = True
 
+fired = False
+collide = False
+
+bullet = bullet(player.x, player.y, 10, 20, 10)
+bullets = []
+
+
 while running:
     for event in pygame.event.get():
         # Handle quit event
@@ -74,18 +81,35 @@ while running:
             elif event.key == pygame.K_RIGHT:
                 print("Right arrow key pressed")
                 player_x += 5
+            elif event.key == pygame.K_SPACE:
+                fired = True
+                bullet.x = player.x + 15
+                bullet.y = player.y
             elif event.key == pygame.K_ESCAPE or event.key == pygame.WINDOWCLOSE: # TO QUIT
                 running = False
     
     screen.fill((0, 0, 0)) # Black background
     
-    draw_invaders()
+    draw_invader()
     
     move_invaders()
 
     screen.blit(player_img, (player_x, 450))
     #pygame.draw.circle(screen,(0,0,200), (player_x,450), 25) # Draw player
     pygame.display.flip()
+
+    if fired == True:
+        pygame.draw.rect(screen, [0,255,0], bullet.rect)
+        bullet.y -= bullet.speed
+        bullet.update()
+    if bullet.y < 0:
+            fired = False # for reset
+        
+    if bullet.rect.colliderect(invader.rect) and collide == False:
+        invaders.remove(invader)
+        collide = True
+        bullet.x = -10
+        bullet.y = -10
     
     clock.tick(FPS)
 
