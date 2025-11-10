@@ -4,14 +4,58 @@ import sys
 x = 250
 #key = pygame.K_RIGHT
 pygame.init()
-screen = pygame.display.set_mode((800, 600)) 
+screen = pygame.display.set_mode((475, 500)) 
 pygame.display.set_caption("Space Invaders Test")
 clock = pygame.time.Clock()
+FPS = 20
 running = True
-player_x = 370
+player_x = 225
 player_img = pygame.image.load("defender.png") #load in the image
 player_img = pygame.transform.scale(player_img, (35, 30)) # change the scale
 
+
+#invaiders
+
+invader_startrow = 100
+invader_endrow = 300
+invader_startcol = 100
+invader_endcol = 300 
+
+move_right = True
+
+invader_img = pygame.image.load("invader1.png")
+invader_img = pygame.transform.scale(invader_img, (30, 30))
+
+def draw_invaders():
+    for row in range(invader_startrow, invader_endrow, 30): # intervals of 30 
+        for col in range(invader_startcol, invader_endcol, 30):
+            screen.blit(invader_img, (col, row))
+    
+def move_invaders():
+    global invader_startcol, invader_endcol, invader_startrow, invader_endrow, move_right
+    # start moving right 
+    if move_right == True:
+        invader_startcol += 2
+        invader_endcol += 2
+        edge_hit = False
+    else: # otherwise move left
+        invader_startcol -= 2
+        invader_endcol -= 2
+        edge_hit = False
+    
+    # detect edge of screen
+    if invader_endcol > 450 or invader_startcol < 0:
+        edge_hit = True
+        invader_startrow += 20
+        invader_endrow += 20
+    
+    # immediately reset edge_hit to prevent getting stuck! 
+    if edge_hit == True:
+        edge_hit == False
+        if move_right == True:
+            move_right = False
+        else:
+            move_right = True
 
 while running:
     for event in pygame.event.get():
@@ -34,9 +78,17 @@ while running:
                 running = False
     
     screen.fill((0, 0, 0)) # Black background
-    pygame.draw.circle(screen,(0,0,200), (player_x,450), 25) # Draw player
+    
+    draw_invaders()
+    
+    move_invaders()
+
+    screen.blit(player_img, (player_x, 450))
+    #pygame.draw.circle(screen,(0,0,200), (player_x,450), 25) # Draw player
     pygame.display.flip()
-        
+    
+    clock.tick(FPS)
+
 pygame.quit()
 pygame.display.quit()
 # This code initializes a Pygame window for testing Space Invaders game mechanics.
